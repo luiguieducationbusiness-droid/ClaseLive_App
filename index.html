@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="Grabador y transcriptor de clases en vivo.">
+  <link rel="manifest" href="manifest.json">
+  <title>ClaseLive — Grabador & Transcriptor</title>
+  <style>
+    :root{--bg:#080b14;--panel:#101626;--panel2:#151c2e;--line:#26304a;--text:#eef2ff;--muted:#99a4bd;--accent:#7c5cff;--accent2:#00d4ff;--danger:#ff5d73;--ok:#32d583;--shadow:0 20px 60px rgba(0,0,0,.35)}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 20% 0%,#18204a 0,transparent 34%),radial-gradient(circle at 100% 20%,#102c46 0,transparent 28%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+    button,select,input{font:inherit} button{cursor:pointer}
+    .app{max-width:1250px;margin:auto;padding:24px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
+    .brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:900;box-shadow:0 0 35px #7c5cff44}
+    h1{font-size:20px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px}
+    .status{display:flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid var(--line);background:#0e1423;border-radius:999px;color:var(--muted);font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:#65708a}.dot.live{background:var(--danger);box-shadow:0 0 12px var(--danger)}
+    .grid{display:grid;grid-template-columns:380px 1fr;gap:18px}.card{background:linear-gradient(180deg,#121a2c,#0e1422);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}.card-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.card-head h2{font-size:14px;margin:0}.body{padding:20px}
+    .timer{font-variant-numeric:tabular-nums;font-size:54px;font-weight:800;letter-spacing:-2px;text-align:center;margin:12px 0}.wave{height:72px;display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:18px}.bar{width:4px;border-radius:8px;background:linear-gradient(var(--accent2),var(--accent));height:12px;transition:height .08s}
+    .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}.btn{border:1px solid var(--line);background:#171f33;color:var(--text);padding:12px 14px;border-radius:13px;font-weight:700;transition:.2s}.btn:hover{transform:translateY(-1px);border-color:#47557b}.btn.primary{background:linear-gradient(135deg,var(--accent),#5b47dd);border:0}.btn.danger{background:#3a1721;border-color:#66303c;color:#ffb1bc}.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+    .field{margin-top:15px}.field label{display:block;color:var(--muted);font-size:11px;margin-bottom:7px}.select,.input{width:100%;background:#0b111e;border:1px solid var(--line);color:var(--text);border-radius:11px;padding:11px}
+    .check{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:13px}.check input{accent-color:var(--accent)}
+    .right{min-width:0}.transcript{height:560px;overflow:auto;padding:22px}.empty{text-align:center;color:var(--muted);padding:100px 20px}.empty strong{display:block;color:var(--text);margin-bottom:8px}
+    .segment{padding:13px 14px;margin-bottom:10px;background:#0d1422;border:1px solid #1f2940;border-radius:13px;line-height:1.55}.time{font-size:10px;color:var(--accent2);font-weight:800;margin-bottom:5px;letter-spacing:.4px}.segment.interim{opacity:.55;border-style:dashed}
+    .footer-actions{padding:15px 20px;border-top:1px solid var(--line);display:flex;gap:9px;flex-wrap:wrap}.small{font-size:11px;color:var(--muted)}
+    .notice{margin-top:16px;padding:12px 13px;border-radius:12px;background:#101a2a;border:1px solid #23304a;color:#aeb9d2;font-size:11px;line-height:1.5}.notice b{color:#e9edff}
+    .recording .timer{color:#ff8495}.hidden{display:none!important}
+    @media(max-width:850px){.grid{grid-template-columns:1fr}.transcript{height:480px}.app{padding:14px}.timer{font-size:44px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><div class="logo">CL</div><div><h1>ClaseLive</h1><div class="sub">Grabador + transcriptor de clases en vivo</div></div></div>
+    <div class="status"><span class="dot" id="dot"></span><span id="status">Listo para comenzar</span></div>
+  </header>
+
+  <main class="grid">
+    <section class="card" id="controlCard">
+      <div class="card-head"><h2>Sesión</h2><span class="small" id="segmentCount">0 segmentos</span></div>
+      <div class="body">
+        <div class="timer" id="timer">00:00:00</div>
+        <div class="wave" id="wave"></div>
+        <div class="controls">
+          <button class="btn primary" id="startBtn">● Iniciar</button>
+          <button class="btn danger" id="stopBtn" disabled>■ Finalizar</button>
+        </div>
+
+        <div class="field"><label for="language">Idioma de transcripción</label>
+          <select class="select" id="language">
+            <option value="es-PE">Español — Perú</option><option value="es-ES">Español — España</option>
+            <option value="es-MX">Español — México</option><option value="en-US">English — US</option>
+            <option value="en-GB">English — UK</option><option value="pt-BR">Português — Brasil</option>
+          </select>
+        </div>
+
+        <label class="check"><input type="checkbox" id="timestamps" checked> Mostrar marcas de tiempo</label>
+        <label class="check"><input type="checkbox" id="interim" checked> Mostrar reconocimiento en vivo</label>
+
+        <div class="notice">
+          <b>Importante:</b> la grabación se procesa en el navegador. La transcripción usa la capacidad de reconocimiento de voz disponible en tu navegador; en algunos navegadores el reconocimiento puede usar un servicio remoto.
+        </div>
+      </div>
+    </section>
+
+    <section class="card right">
+      <div class="card-head"><h2>Transcripción en vivo</h2><button class="btn" id="clearBtn" style="padding:7px 10px;font-size:11px">Limpiar</button></div>
+      <div class="transcript" id="transcript">
+        <div class="empty" id="empty"><strong>Tu clase aparecerá aquí</strong>Presiona “Iniciar” y comienza la clase. Mantén esta pestaña abierta mientras grabas.</div>
+      </div>
+      <div class="footer-actions">
+        <button class="btn" id="txtBtn" disabled>↓ TXT</button>
+        <button class="btn" id="pdfBtn" disabled>↓ PDF</button>
+        <button class="btn" id="mp3Btn" disabled>↓ Descargar MP3</button>
+        <button class="btn" id="copyBtn" disabled>Copiar texto</button>
+        <span class="small" id="audioInfo" style="margin-left:auto;align-self:center">Sin audio disponible</span>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const startBtn=$("startBtn"), stopBtn=$("stopBtn"), status=$("status"), dot=$("dot");
+  const timer=$("timer"), transcript=$("transcript"), empty=$("empty"), count=$("segmentCount");
+  const txtBtn=$("txtBtn"), pdfBtn=$("pdfBtn"), mp3Btn=$("mp3Btn"), copyBtn=$("copyBtn"), clearBtn=$("clearBtn");
+  const lang=$("language"), showTime=$("timestamps"), showInterim=$("interim"), controlCard=$("controlCard"), audioInfo=$("audioInfo");
+  const wave=$("wave"); for(let i=0;i<34;i++){const b=document.createElement("i");b.className="bar";wave.appendChild(b)}
+  let stream=null, recorder=null, chunks=[], recognition=null, recognizing=false, shouldRecognize=false;
+  let startedAt=0, timerId=null, segments=[], interimNode=null, audioBlob=null;
+
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const supported=!!SpeechRecognition;
+
+  function setStatus(text, live=false){status.textContent=text;dot.classList.toggle("live",live)}
+  function fmt(ms){const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor((s%3600)/60),x=s%60;return [h,m,x].map(v=>String(v).padStart(2,"0")).join(":")}
+  function updateTimer(){timer.textContent=fmt(Date.now()-startedAt)}
+  function stamp(ms){return new Date(startedAt+ms).toLocaleTimeString("es-PE",{hour:"2-digit",minute:"2-digit",second:"2-digit"})}
+  function fullText(){return segments.map(s=>`${showTime.checked?"["+s.time+"] ":""}${s.text}`).join("\n\n")}
+  function render(){
+    const hasAudio=!!audioBlob;
+    txtBtn.disabled=!segments.length; pdfBtn.disabled=!segments.length; copyBtn.disabled=!segments.length; mp3Btn.disabled=!hasAudio;
+    if(!segments.length && !interimNode){empty.classList.remove("hidden");count.textContent="0 segmentos";return}
+    empty.classList.add("hidden");count.textContent=`${segments.length} segmento${segments.length===1?"":"s"}`;
+    [...transcript.querySelectorAll(".segment:not(.interim)")].forEach(n=>n.remove());
+    segments.forEach(s=>{const n=document.createElement("div");n.className="segment";n.innerHTML=`<div class="time">${showTime.checked?s.time:""}<\/div><div>${escapeHtml(s.text)}<\/div>`; transcript.appendChild(n)})
+    if(interimNode) transcript.appendChild(interimNode);
+    transcript.scrollTop=transcript.scrollHeight;
+  }
+  function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+  function setupRecognition(){
+    if(!supported){setStatus("Transcripción no disponible en este navegador");return null}
+    const r=new SpeechRecognition(); r.lang=lang.value; r.continuous=true; r.interimResults=true; r.maxAlternatives=1;
+    r.onstart=()=>{recognizing=true;setStatus("Grabando y transcribiendo",true)}
+    r.onresult=e=>{
+      let interim="";
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        const text=e.results[i][0].transcript.trim();
+        if(e.results[i].isFinal && text){
+          segments.push({time:stamp(Date.now()-startedAt),text});
+        } else if(showInterim.checked) interim+=text+" ";
+      }
+      if(interim){
+        if(!interimNode){interimNode=document.createElement("div");interimNode.className="segment interim"}
+        interimNode.innerHTML=`<div class="time">RECONOCIENDO…<\/div><div>${escapeHtml(interim.trim())}<\/div>`;
+      } else if(interimNode){interimNode.remove();interimNode=null}
+      render();
+    };
+    r.onerror=e=>{ if(e.error==="not-allowed") {shouldRecognize=false;setStatus("Permiso de micrófono/transcripción denegado")} else setStatus("Reconocimiento intentando reconectar",true) };
+    r.onend=()=>{recognizing=false;if(shouldRecognize){setTimeout(()=>{try{r.start()}catch(_){ }},250)}};
+    return r;
+  }
+  async function start(){
+    if(!navigator.mediaDevices?.getUserMedia){alert("Este navegador no permite acceso al micrófono.");return}
+    try{
+      stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+      chunks=[]; audioBlob=null; segments=[]; interimNode=null; startedAt=Date.now(); timerId=setInterval(updateTimer,250);
+      recorder=new MediaRecorder(stream, {audioBitsPerSecond:128000});
+      recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+      recorder.onstop=()=>{audioBlob=new Blob(chunks,{type:recorder.mimeType||"audio/webm"});mp3Btn.disabled=false;audioInfo.textContent=`Audio listo · ${Math.round(audioBlob.size/1024/1024*10)/10} MB`};
+      recorder.start(1000);
+      shouldRecognize=true; recognition=setupRecognition();
+      if(recognition) {recognition.lang=lang.value;try{recognition.start()}catch(_){}}
+      startBtn.disabled=true;stopBtn.disabled=false;controlCard.classList.add("recording");setStatus("Grabando…",true);
+      render();
+    }catch(err){console.error(err);alert("No se pudo acceder al micrófono. Revisa los permisos del navegador.")}
+  }
+  function stop(){
+    shouldRecognize=false;if(recognition){try{recognition.stop()}catch(_){}}
+    if(recorder&&recorder.state!=="inactive")recorder.stop();
+    if(stream)stream.getTracks().forEach(t=>t.stop());stream=null;clearInterval(timerId);timerId=null;
+    if(interimNode){interimNode.remove();interimNode=null}
+    startBtn.disabled=false;stopBtn.disabled=true;controlCard.classList.remove("recording");setStatus("Sesión finalizada");render();
+  }
+  function downloadBlob(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
+  txtBtn.onclick=()=>downloadBlob(new Blob([fullText()],{type:"text/plain;charset=utf-8"}),"clase-transcripcion.txt");
+  copyBtn.onclick=async()=>{await navigator.clipboard.writeText(fullText());copyBtn.textContent="✓ Copiado";setTimeout(()=>copyBtn.textContent="Copiar texto",1500)}
+  pdfBtn.onclick=()=>{
+    const {jsPDF}=window.jspdf; const doc=new jsPDF({unit:"pt",format:"a4"});let y=52;
+    doc.setFontSize(18);doc.text("Transcripción de clase",40,y);y+=28;doc.setFontSize(9);doc.text(new Date().toLocaleString("es-PE"),40,y);y+=24;doc.setFontSize(11);
+    const lines=doc.splitTextToSize(fullText(),515);lines.forEach(line=>{if(y>785){doc.addPage();y=45}doc.text(line,40,y);y+=16});doc.save("clase-transcripcion.pdf");
+  };
+  mp3Btn.onclick=async()=>{
+    if(!audioBlob)return;
+    mp3Btn.disabled=true;mp3Btn.textContent="Convirtiendo…";
+    try{
+      const ab=await audioBlob.arrayBuffer();const ctx=new (window.AudioContext||window.webkitAudioContext)();
+      const decoded=await ctx.decodeAudioData(ab); const sr=decoded.sampleRate, ch=Math.min(decoded.numberOfChannels,2);
+      const encoder=new lamejs.Mp3Encoder(ch,sr,128), block=1152, mp3=[];
+      const left=decoded.getChannelData(0), right=ch>1?decoded.getChannelData(1):left;
+      for(let i=0;i<left.length;i+=block){
+        const len=Math.min(block,left.length-i), l=new Int16Array(len), r=new Int16Array(len);
+        for(let j=0;j<len;j++){l[j]=Math.max(-32768,Math.min(32767,left[i+j]*32767));r[j]=Math.max(-32768,Math.min(32767,right[i+j]*32767))}
+        const buf=ch===2?encoder.encodeBuffer(l,r):encoder.encodeBuffer(l);if(buf.length)mp3.push(buf)
+      }
+      const end=encoder.flush();if(end.length)mp3.push(end);
+      downloadBlob(new Blob(mp3,{type:"audio/mpeg"}),"clase-audio.mp3");ctx.close();
+    }catch(err){console.error(err);alert("No fue posible convertir el audio a MP3 en este dispositivo. Puedes conservar la grabación original del navegador.");}
+    finally{mp3Btn.disabled=!audioBlob;mp3Btn.textContent="↓ Descargar MP3"}
+  };
+  clearBtn.onclick=()=>{if(confirm("¿Borrar la transcripción y el audio de esta sesión?")){segments=[];audioBlob=null;chunks=[];audioInfo.textContent="Sin audio disponible";render()}};
+  showTime.onchange=render; showInterim.onchange=()=>{if(!showInterim.checked&&interimNode){interimNode.remove();interimNode=null}render()};
+  lang.onchange=()=>{if(recognition)recognition.lang=lang.value};
+  startBtn.onclick=start;stopBtn.onclick=stop;
+  if(!supported){startBtn.title="Tu navegador no ofrece SpeechRecognition";setStatus("Audio disponible · transcripción limitada")}
+  window.addEventListener("beforeunload",e=>{if(recorder?.state==="recording"){e.preventDefault();e.returnValue=""}});
+})();
+</script>
+</body>
+</html>

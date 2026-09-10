@@ -1,0 +1,9 @@
+{
+  "name":"ClaseLive — Grabador y Transcriptor",
+  "short_name":"ClaseLive",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#080b14",
+  "theme_color":"#0b1020",
+  "description":"Graba clases en vivo y genera transcripciones descargables."
+}
