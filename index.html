@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#0b1020">
   <meta name="description" content="Grabador y transcriptor de clases en vivo.">
   <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <title>ClaseLive — Grabador & Transcriptor</title>
   <style>
     :root{--bg:#080b14;--panel:#101626;--panel2:#151c2e;--line:#26304a;--text:#eef2ff;--muted:#99a4bd;--accent:#7c5cff;--accent2:#00d4ff;--danger:#ff5d73;--ok:#32d583;--shadow:0 20px 60px rgba(0,0,0,.35)}
@@ -23,6 +24,7 @@
     .right{min-width:0}.transcript{height:560px;overflow:auto;padding:22px}.empty{text-align:center;color:var(--muted);padding:100px 20px}.empty strong{display:block;color:var(--text);margin-bottom:8px}
     .segment{padding:13px 14px;margin-bottom:10px;background:#0d1422;border:1px solid #1f2940;border-radius:13px;line-height:1.55}.time{font-size:10px;color:var(--accent2);font-weight:800;margin-bottom:5px;letter-spacing:.4px}.segment.interim{opacity:.55;border-style:dashed}
     .footer-actions{padding:15px 20px;border-top:1px solid var(--line);display:flex;gap:9px;flex-wrap:wrap}.small{font-size:11px;color:var(--muted)}
+    .maker{margin-top:20px;padding:14px 0 4px;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:11px}.maker strong{color:var(--text)}
     .notice{margin-top:16px;padding:12px 13px;border-radius:12px;background:#101a2a;border:1px solid #23304a;color:#aeb9d2;font-size:11px;line-height:1.5}.notice b{color:#e9edff}
     .recording .timer{color:#ff8495}.hidden{display:none!important}
     @media(max-width:850px){.grid{grid-template-columns:1fr}.transcript{height:480px}.app{padding:14px}.timer{font-size:44px}}
@@ -77,6 +79,7 @@
       </div>
     </section>
   </main>
+  <footer class="maker">Creado por <strong>LAZO &amp; NEXORA STUDIO</strong></footer>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
