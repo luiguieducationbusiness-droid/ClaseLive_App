@@ -13,7 +13,7 @@
     *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 20% 0%,#18204a 0,transparent 34%),radial-gradient(circle at 100% 20%,#102c46 0,transparent 28%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
     button,select,input{font:inherit} button{cursor:pointer}
     .app{max-width:1250px;margin:auto;padding:24px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px}
-    .brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:900;box-shadow:0 0 35px #7c5cff44}
+    .brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:14px;object-fit:cover;display:block;box-shadow:0 0 35px #7c5cff44}
     h1{font-size:20px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px}
     .status{display:flex;align-items:center;gap:8px;padding:9px 13px;border:1px solid var(--line);background:#0e1423;border-radius:999px;color:var(--muted);font-size:12px}.dot{width:8px;height:8px;border-radius:50%;background:#65708a}.dot.live{background:var(--danger);box-shadow:0 0 12px var(--danger)}
     .grid{display:grid;grid-template-columns:380px 1fr;gap:18px}.card{background:linear-gradient(180deg,#121a2c,#0e1422);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}.card-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.card-head h2{font-size:14px;margin:0}.body{padding:20px}
@@ -33,7 +33,7 @@
 <body>
 <div class="app">
   <header class="top">
-    <div class="brand"><div class="logo">CL</div><div><h1>ClaseLive</h1><div class="sub">Grabador + transcriptor de clases en vivo</div></div></div>
+    <div class="brand"><img class="logo" src="favicon.svg" alt="Logo de ClaseLive"><div><h1>ClaseLive</h1><div class="sub">Grabador + transcriptor de clases en vivo</div></div></div>
     <div class="status"><span class="dot" id="dot"></span><span id="status">Listo para comenzar</span></div>
   </header>
 
